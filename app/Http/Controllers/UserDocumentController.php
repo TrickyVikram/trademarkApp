@@ -7,6 +7,7 @@ use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use PDF;
 
 class UserDocumentController extends Controller
 {
@@ -51,7 +52,7 @@ class UserDocumentController extends Controller
     }
 
     /**
-     * Download document
+     * Download document as PDF
      */
     public function download(Document $document)
     {
@@ -66,6 +67,21 @@ class UserDocumentController extends Controller
             abort(404, 'Document not found');
         }
 
+        // If it's an HTML file, convert to PDF
+        if (pathinfo($filePath, PATHINFO_EXTENSION) === 'html') {
+            $htmlContent = file_get_contents($filePath);
+            
+            // Use DomPDF to convert HTML to PDF
+            $pdf = \PDF::loadHTML($htmlContent);
+            $pdf->setPaper('A4', 'portrait');
+            
+            // Generate filename
+            $pdfFilename = str_replace('.html', '.pdf', $document->file_name);
+            
+            return $pdf->download($pdfFilename);
+        }
+        
+        // For other files, download directly
         return response()->download(
             $filePath,
             $document->file_name
@@ -96,14 +112,28 @@ class UserDocumentController extends Controller
         }
 
         try {
-            // Store signed document
+            // 1. Delete any previously uploaded signed versions (old uploads for same document type)
+            $previousSignedDocs = Document::where('application_id', $application->id)
+                ->where('document_type', $document->document_type . ' (Signed)')
+                ->get();
+            
+            foreach ($previousSignedDocs as $oldDoc) {
+                // Delete file from storage
+                if (Storage::disk('public')->exists($oldDoc->file_path)) {
+                    Storage::disk('public')->delete($oldDoc->file_path);
+                }
+                // Delete database record
+                $oldDoc->delete();
+            }
+
+            // 2. Store new signed document
             $file = $request->file('signed_document');
             $filename = 'signed-' . $document->document_type . '-' . $application->id . '-' . now()->timestamp . '.' . $file->getClientOriginalExtension();
             $path = 'documents/signed/' . $filename;
 
             Storage::disk('public')->put($path, file_get_contents($file));
 
-            // Create new document record for signed version
+            // 3. Create new document record for signed version
             $signedDoc = Document::create([
                 'application_id' => $application->id,
                 'user_id' => Auth::id(),
@@ -112,13 +142,13 @@ class UserDocumentController extends Controller
                 'file_name' => $filename,
                 'file_type' => $file->getClientOriginalExtension(),
                 'file_size' => $file->getSize(),
-                'status' => 'signed',
+                'status' => 'uploaded',
                 'verification_notes' => $validated['signature_notes'] ?? 'User uploaded signed document',
             ]);
 
-            // Update original document status
+            // 4. Update original document status to archived (hidden from user view)
             $document->update([
-                'status' => 'signed'
+                'status' => 'archived'
             ]);
 
             return response()->json([

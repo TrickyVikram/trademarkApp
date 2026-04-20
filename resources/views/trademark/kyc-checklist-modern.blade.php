@@ -11,7 +11,7 @@
                 </div>
                 <div class="step-item active">
                     <div class="step-number">2</div>
-                    <div class="step-label">KYC</div>
+                    <div class="step-label">Required</div>
                 </div>
                 <div class="step-item">
                     <div class="step-number">3</div>
@@ -32,7 +32,7 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header">
-                        <h2>KYC Verification - {{ ucfirst($type) }}</h2>
+                        <h2>Required Documents - {{ ucfirst($type) }}</h2>
                         <small>Please prepare the following documents for verification</small>
                     </div>
                     <div class="card-body">
@@ -56,8 +56,7 @@
                             @foreach ($requirements as $index => $req)
                                 <div class="checklist-item">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="doc{{ $loop->index }}"
-                                            disabled>
+                                        
                                         <label class="form-check-label" for="doc{{ $loop->index }}">
                                             <strong>{{ $req }}</strong>
                                             <small>Scanned copy required • Max 10MB per file</small>

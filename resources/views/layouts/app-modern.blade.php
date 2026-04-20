@@ -576,7 +576,7 @@
         <!-- ============ FOOTER ============ -->
         <footer>
             <div class="container">
-                <p>&copy; 2024 Legal Bruz . All rights reserved. | <a href="#"
+                <p>&copy; 2026 Legal Bruz . All rights reserved. | <a href="#"
                         style="color: var(--emerald); text-decoration: none;">Privacy Policy</a> | <a href="#"
                         style="color: var(--emerald); text-decoration: none;">Terms</a></p>
             </div>

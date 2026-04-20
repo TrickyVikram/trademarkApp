@@ -473,7 +473,7 @@
 
     <!-- ============ FOOTER ============ -->
     <footer>
-        <p>&copy; 2024 Legal Bruz - India's Fastest Trademark Registration Platform</p>
+        <p>&copy; 2026 Legal Bruz - India's Fastest Trademark Registration Platform</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

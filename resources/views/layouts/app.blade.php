@@ -527,6 +527,19 @@
             }
         }
     </style>
+      <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -580,7 +593,7 @@
         <!-- ============ FOOTER ============ -->
         <footer>
             <div class="container">
-                <p>&copy; 2024 Legal Bruz . All rights reserved. | <a href="#"
+                <p>&copy; 2026 Legal Bruz . All rights reserved. | <a href="#"
                         style="color: var(--emerald); text-decoration: none;">Privacy Policy</a> | <a href="#"
                         style="color: var(--emerald); text-decoration: none;">Terms</a></p>
             </div>
@@ -609,19 +622,8 @@
             });
         });
     </script>
-    <style>
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+  
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

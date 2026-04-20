@@ -87,15 +87,15 @@
                                     @if ($application->entity_type === 'individual')
                                         <li><strong>PAN Card:</strong> Scanned copy of original</li>
                                         <li><strong>Address Proof:</strong> Utility bill, passport, or government ID</li>
-                                        <li><strong>Affidavit:</strong> Auto-generated (will be prepared)</li>
-                                        <li><strong>Power of Attorney:</strong> Auto-generated (will be prepared)</li>
+                                        <li><strong>Affidavit:</strong> Auto-generated document - upload after generation</li>
+                                        <li><strong>Power of Attorney:</strong> Auto-generated document - upload after generation</li>
                                     @else
                                         <li><strong>Certificate of Incorporation:</strong> From ROC</li>
                                         <li><strong>PAN Card:</strong> Company PAN</li>
                                         <li><strong>GST Certificate:</strong> If registered</li>
                                         <li><strong>Authorized Signatory ID:</strong> Government issued ID</li>
-                                        <li><strong>Affidavit:</strong> Auto-generated (will be prepared)</li>
-                                        <li><strong>Power of Attorney:</strong> Auto-generated (will be prepared)</li>
+                                        <li><strong>Affidavit:</strong> Auto-generated document - upload after generation</li>
+                                        <li><strong>Power of Attorney:</strong> Auto-generated document - upload after generation</li>
                                     @endif
                                 </ul>
                             </div>

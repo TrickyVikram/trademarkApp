@@ -20,7 +20,7 @@ class PaymentController extends Controller
             abort(403);
         }
 
-        $totalAmount = 5000; // ₹5000 total, 50% advance = ₹2500
+        $totalAmount = 10; // ₹5000 total, 50% advance = ₹2500
         $advanceAmount = round($totalAmount * 0.50);
 
         return view('payments.razorpay-form', [

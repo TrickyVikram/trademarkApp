@@ -23,6 +23,20 @@ Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name(
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
+// User Login Route - Allow access if not authenticated as web user (admin can access)
+Route::get('/login', function () {
+    // If admin is logged in, redirect to admin dashboard
+    if (Auth::guard('admin')->check()) {
+        return redirect()->route('admin.dashboard');
+    }
+    // If web user is logged in, redirect to home
+    if (Auth::guard('web')->check()) {
+        return redirect()->route('home');
+    }
+    // Otherwise show login form
+    return view('auth.login');
+})->name('login');
+
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -43,15 +57,15 @@ Route::middleware(['auth'])->group(function () {
             'individual' => [
                 'PAN Card',
                 'Address Proof (Aadhar/Voter ID/Utility Bill)',
-                'Email & Phone',
-                'Bank Account Details (Optional)',
+                
+               
             ],
             'company' => [
                 'Certificate of Incorporation',
                 'PAN Certificate',
                 'GST Registration (if available)',
                 'Authorized Signatory ID Proof',
-                'Company Address Proof',
+               
             ]
         ];
 
@@ -86,6 +100,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/documents/{id}/affidavit/download', [TrademarkController::class, 'downloadAffidavit'])->name('documents.affidavit.download');
     Route::get('/documents/{id}/poa/download', [TrademarkController::class, 'downloadPOA'])->name('documents.poa.download');
 
+    // Document Editing - Save edited document content
+    Route::post('/documents/save-edited', [\App\Http\Controllers\DocumentController::class, 'saveEdited'])->name('documents.save-edited');
+
     // Status Tracking
     Route::get('/trademark/{id}/status', [TrademarkController::class, 'showStatus'])->name('trademark.status');
 
@@ -108,6 +125,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Approval/Rejection
     Route::post('/application/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.approve');
     Route::post('/application/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.reject');
+
+    // Manual Document Generation
+    Route::post('/application/{id}/generate-affidavit', [AdminController::class, 'generateAffidavit'])->name('admin.generate-affidavit');
+    Route::post('/application/{id}/generate-poa', [AdminController::class, 'generatePOA'])->name('admin.generate-poa');
+
+    // Individual Document Approval/Rejection
+    Route::post('/document/{id}/approve', [AdminController::class, 'approveDocument'])->name('admin.approve-document');
+    Route::post('/document/{id}/reject', [AdminController::class, 'rejectDocument'])->name('admin.reject-document');
+    Route::post('/document/{id}/verify', [AdminController::class, 'verifyDocument'])->name('admin.verify-document');
 
     // Filing
     Route::post('/application/{id}/file', [AdminController::class, 'fileApplication'])->name('admin.file');

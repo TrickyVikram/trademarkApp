@@ -119,7 +119,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label" style="color: #1D3557; font-weight: 600;">Phone</label>
-                                <p class="mb-0">{{ $application->user->phone ?? 'N/A' }}</p>
+                                <p class="mb-0">{{ $application->phone ?? 'N/A' }}</p>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" style="color: #1D3557; font-weight: 600;">Submitted</label>
@@ -129,40 +129,157 @@
                     </div>
                 </div>
 
-                <!-- Documents Card -->
+                <!-- Manual Document Generation Card -->
+                <!-- <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header" style="background-color: #E76F51; color: white;">
+                        <h5 class="mb-0">⚙️ Manual Document Generation</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3"><small>Generate documents individually for review:</small></p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form action="{{ route('admin.generate-affidavit', $application->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning btn-sm w-100"
+                                        onclick="return confirm('Generate Affidavit document?')">
+                                        📋 Generate Affidavit
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-md-6">
+                                <form action="{{ route('admin.generate-poa', $application->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-info btn-sm w-100"
+                                        onclick="return confirm('Generate POA document?')">
+                                        ✍️ Generate POA
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Generated Documents Status Card -->
                 @if ($application->documents && $application->documents->count() > 0)
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header" style="background-color: #2A9D8F; color: white;">
                             <h5 class="mb-0">📄 Generated Documents ({{ $application->documents->count() }})</h5>
                         </div>
                         <div class="card-body">
-                            <div class="list-group">
+                            <div class="list-group mb-3">
                                 @foreach ($application->documents as $doc)
                                     <div class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong>📄 {{ $doc->document_type }}</strong>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div style="flex: 1;">
+                                                <strong>📄 {{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}</strong>
                                                 <br>
                                                 <small class="text-muted">{{ basename($doc->file_path) }}</small>
+                                                <br>
+                                                <span class="badge bg-info mt-2">
+                                                    @if($doc->status === 'generated')
+                                                        ✏️ Auto-Generated - Pending Review
+                                                    @elseif($doc->status === 'approved')
+                                                        ✅ Approved - Ready for User
+                                                    @elseif($doc->status === 'uploaded')
+                                                        📤 User Uploaded - Verified
+                                                    @elseif($doc->status === 'pending')
+                                                        ⏳ Pending Verification
+                                                    @else
+                                                        {{ ucfirst($doc->status) }}
+                                                    @endif
+                                                </span>
                                             </div>
-                                            <div class="d-flex gap-2">
+                                            <div class="d-flex gap-2 ms-3" style="flex-shrink: 0;">
                                                 <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                                    class="btn btn-sm btn-info">
-                                                    👁️ View
+                                                    class="btn btn-sm btn-info" title="View document">
+                                                    view
                                                 </a>
                                                 <a href="{{ Storage::url($doc->file_path) }}" download
-                                                    class="btn btn-sm btn-success">
-                                                    ⬇️ Download
+                                                    class="btn btn-sm btn-info " title="Download document">
+                                                    download
                                                 </a>
-                                                <a href="{{ Storage::url($doc->file_path) }}" target="_blank"
-                                                    class="btn btn-sm btn-warning">
-                                                    ✏️ Edit
-                                                </a>
+                                                
+                                                <!-- Approve Button -->
+                                                @if($doc->status === 'pending')
+                                                    <form action="{{ route('admin.approve-document', $doc->id) }}" method="POST" style="display: inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-info" title="Approve this document"
+                                                            onclick="return confirm('Approve this {{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}?')">
+                                                            approve
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                
+                                                <!-- Verify Button (for uploaded signed documents) -->
+                                                @if($doc->status === 'uploaded')
+                                                    <form action="{{ route('admin.verify-document', $doc->id) }}" method="POST" style="display: inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-info " title="Verify this document"
+                                                            onclick="return confirm('Mark this document as verified?')">
+                                                            verify
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                
+                                                <!-- Reject Button -->
+                                                @if($doc->status === 'pending' || $doc->status === 'approved')
+                                                    <form action="{{ route('admin.reject-document', $doc->id) }}" method="POST" style="display: inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm " title="Reject this document"
+                                                            onclick="return confirm('Reject this {{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}?')">
+                                                            ❌
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
+
+                            <!-- Approve/Reject Buttons -->
+                            @if ($application->status === 'pending_admin')
+                                <hr>
+                                <p class="mb-3 text-muted"><small>📋 Ready to approve? Documents will be auto-generated for download:</small></p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <!-- Approve Form -->
+                                        <form action="{{ route('admin.approve', $application->id) }}" method="POST" class="mb-2">
+                                            @csrf
+                                            <div class="mb-2">
+                                                <label class="form-label" style="color: #1D3557; font-weight: 600;">Notes (Optional)</label>
+                                                <textarea name="notes" class="form-control form-control-sm" rows="2"
+                                                    placeholder="Add any notes..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-success btn-sm w-100"
+                                                onclick="return confirm('Approve these documents? User will be able to download them.')">
+                                                ✅ Approve & Generate Documents
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <!-- Reject Form -->
+                                        <form action="{{ route('admin.reject', $application->id) }}" method="POST">
+                                            @csrf
+                                            <div class="mb-2">
+                                                <label class="form-label" style="color: #1D3557; font-weight: 600;">Reason *</label>
+                                                <textarea name="rejection_reason" class="form-control form-control-sm" rows="2" required
+                                                    placeholder="Why are you rejecting?"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-danger btn-sm w-100"
+                                                onclick="return confirm('Reject these documents?')">
+                                                ❌ Reject & Request Changes
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @elseif ($application->status === 'approved')
+                                <div class="alert alert-success mb-0">
+                                    <strong>✅ Approved!</strong><br>
+                                    <small>Documents are approved. User can now download and upload signed versions.</small>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -219,53 +336,72 @@
                         <h5 class="mb-0">⚙️ Actions</h5>
                     </div>
                     <div class="card-body">
-                        @if ($application->status === 'pending_admin')
-                            <!-- Approve Form -->
-                            <form action="{{ route('admin.approve', $application->id) }}" method="POST" class="mb-3">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label" style="color: #1D3557; font-weight: 600;">Notes
-                                        (Optional)</label>
-                                    <textarea name="notes" class="form-control" rows="3" placeholder="Add any notes..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-success btn-sm w-100"
-                                    onclick="return confirm('Are you sure you want to approve this application?')">
-                                    ✅ Approve Application
-                                </button>
-                            </form>
-
-                            <!-- Reject Form -->
-                            <form action="{{ route('admin.reject', $application->id) }}" method="POST">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label" style="color: #1D3557; font-weight: 600;">Rejection Reason
-                                        *</label>
-                                    <textarea name="rejection_reason" class="form-control" rows="3" required
-                                        placeholder="Please provide a reason for rejection..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-danger btn-sm w-100"
-                                    onclick="return confirm('Are you sure you want to reject this application?')">
-                                    ❌ Reject Application
-                                </button>
-                            </form>
-                        @elseif ($application->status === 'approved')
+                        @if ($application->status === 'approved')
                             <div class="alert alert-success mb-3">
                                 <strong>✅ Approved!</strong><br>
-                                <small>Affidavit & POA documents have been generated and are available below. Click "Edit"
-                                    to modify them if needed.</small>
+                                <small>Documents approved. Waiting for user to upload signed versions.</small>
                             </div>
-                            <form action="{{ route('admin.file', $application->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-info btn-sm w-100"
-                                    onclick="return confirm('Mark this application as filed with IP authorities?')">
-                                    📁 File Application
+                            
+                            @php
+                                // Check if key documents are verified (Affidavit (Signed) and POA (Signed))
+                                $affidavitSigned = $application->documents
+                                    ->where('document_type', 'affidavit (Signed)')
+                                    ->where('status', 'verified')
+                                    ->first();
+                                
+                                $poaSigned = $application->documents
+                                    ->where('document_type', 'poa (Signed)')
+                                    ->where('status', 'verified')
+                                    ->first();
+                                
+                                $canFile = ($affidavitSigned && $poaSigned);
+                            @endphp
+                            
+                            @if($canFile)
+                                <div class="alert alert-info mb-3">
+                                    <strong>✔️ Ready to File!</strong><br>
+                                    <small>All required documents (Affidavit & POA) are verified and signed.</small>
+                                </div>
+                                <form action="{{ route('admin.file', $application->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-info btn-sm w-100"
+                                        onclick="return confirm('Mark this application as filed with IP authorities?')">
+                                        📁 File Application
+                                    </button>
+                                </form>
+                            @else
+                                <div class="alert alert-warning mb-3">
+                                    <strong>⏳ Awaiting Signed Documents</strong><br>
+                                    <small>
+                                        @if(!$affidavitSigned)
+                                            ❌ Affidavit (Signed) - Not verified<br>
+                                        @else
+                                            ✔️ Affidavit (Signed) - Verified<br>
+                                        @endif
+                                        @if(!$poaSigned)
+                                            ❌ POA (Signed) - Not verified
+                                        @else
+                                            ✔️ POA (Signed) - Verified
+                                        @endif
+                                    </small>
+                                </div>
+                                <button type="button" class="btn btn-info btn-sm w-100" disabled>
+                                    📁 File Application (Pending verification)
                                 </button>
-                            </form>
+                            @endif
+                        @elseif ($application->status === 'rejected')
+                            <div class="alert alert-danger mb-3">
+                                <strong>❌ Rejected!</strong><br>
+                                <small>{{ $application->rejection_reason ?? 'Documents rejected. User needs to resubmit.' }}</small>
+                            </div>
+                        @elseif ($application->status === 'filed')
+                            <div class="alert alert-info mb-3">
+                                <strong>📁 Filed!</strong><br>
+                                <small>Application has been filed with the IP authorities.</small>
+                            </div>
                         @else
                             <div class="alert alert-info mb-0">
-                                <small>This application is at
-                                    <strong>{{ ucfirst(str_replace('_', ' ', $application->status)) }}</strong>
-                                    status.</small>
+                                <small>👆 Review documents above and take action to Approve or Reject.</small>
                             </div>
                         @endif
                     </div>

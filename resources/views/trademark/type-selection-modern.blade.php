@@ -11,7 +11,7 @@
                 </div>
                 <div class="step-item">
                     <div class="step-number">2</div>
-                    <div class="step-label">KYC</div>
+                    <div class="step-label">Required</div>
                 </div>
                 <div class="step-item">
                     <div class="step-number">3</div>
@@ -49,7 +49,7 @@
                                     <h3>Individual</h3>
                                     <p>Single person or sole proprietor. Perfect for freelancers and personal brands.</p>
                                     <button type="button" class="btn btn-primary" onclick="event.stopPropagation();">
-                                        <i class="bi bi-arrow-right" style="margin-right: 8px;"></i>Select
+                                      Select
                                     </button>
                                 </a>
                             </div>
@@ -61,7 +61,7 @@
                                     <h3>Company/Business</h3>
                                     <p>Partnership, Corporation, or any registered business entity.</p>
                                     <button type="button" class="btn btn-primary" onclick="event.stopPropagation();">
-                                        <i class="bi bi-arrow-right" style="margin-right: 8px;"></i>Select
+                                         Select
                                     </button>
                                 </a>
                             </div>

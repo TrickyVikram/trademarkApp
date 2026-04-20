@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('application_number')->nullable()->unique();
             $table->string('entity_type'); // individual or company
             $table->string('applicant_name');
+            $table->string('phone');
+            $table->string('email');
             $table->string('brand_name')->nullable();
             $table->string('logo_path')->nullable();
             $table->text('description')->nullable();

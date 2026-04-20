@@ -14,6 +14,11 @@ class Application extends Model
         'application_number',
         'entity_type',
         'applicant_name',
+        'phone',
+        'email',
+        'nationality',
+        'address',
+        'gender',
         'brand_name',
         'logo_path',
         'description',
@@ -27,6 +32,10 @@ class Application extends Model
         'rejection_reason',
         'filed_at',
         'registered_at',
+        'classes',
+        'goods_services',
+        'usage',
+        'members_details',
     ];
 
     protected $casts = [
@@ -34,6 +43,8 @@ class Application extends Model
         'registered_at' => 'datetime',
         'first_use_date' => 'date',
         'currently_selling' => 'boolean',
+        'classes' => 'array',
+        'members_details' => 'array',
     ];
 
     public function user(): BelongsTo

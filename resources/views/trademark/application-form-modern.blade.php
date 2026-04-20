@@ -11,7 +11,7 @@
                 </div>
                 <div class="step-item completed">
                     <div class="step-number">2</div>
-                    <div class="step-label">KYC</div>
+                    <div class="step-label">Required</div>
                 </div>
                 <div class="step-item active">
                     <div class="step-number">3</div>
@@ -51,7 +51,7 @@
                                 <div class="col-md-6">
                                     <label for="applicant_name" class="form-label required">Full Name</label>
                                     <input type="text" class="form-control @error('applicant_name') is-invalid @enderror"
-                                        id="applicant_name" name="applicant_name" value="{{ old('applicant_name') }}"
+                                        id="applicant_name" name="applicant_name" value="{{ old('applicant_name', auth()->user()->name ?? '') }}"
                                         placeholder="Enter your full name" required>
                                     @error('applicant_name')
                                         <div class="invalid-feedback">{{ $message }}</div>

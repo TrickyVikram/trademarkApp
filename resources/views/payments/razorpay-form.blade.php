@@ -95,7 +95,7 @@
                             </div>
 
                             <!-- Full Payment -->
-                            <div class="payment-option mb-3" onclick="selectPaymentOption('full', 5000)">
+                            <div class="payment-option mb-3" onclick="selectPaymentOption('full', 10)">
                                 <div class="p-3 border rounded-lg cursor-pointer"
                                     style="border: 2px solid #e9ecef !important;">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -104,13 +104,13 @@
                                             <small class="text-muted">Complete payment now</small>
                                         </div>
                                         <div>
-                                            <h5 style="color: #4A4A4A;">₹5,000</h5>
+                                            <h5 style="color: #4A4A4A;">₹10</h5>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Custom Amount -->
+                            <!-- Custom Amount
                             <div class="payment-option" onclick="selectPaymentOption('custom', 0)">
                                 <div class="p-3 border rounded-lg cursor-pointer"
                                     style="border: 2px solid #e9ecef !important;">
@@ -126,7 +126,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- Custom Amount Input (Hidden) -->

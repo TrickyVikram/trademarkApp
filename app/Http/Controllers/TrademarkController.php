@@ -60,6 +60,8 @@ class TrademarkController extends Controller
         $validated = $request->validate([
             'entity_type' => 'required|in:individual,company',
             'applicant_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
             'brand_name' => 'required|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'description' => 'required|string',
@@ -80,6 +82,8 @@ class TrademarkController extends Controller
             'type' => 'trademark',
             'entity_type' => $validated['entity_type'],
             'applicant_name' => $validated['applicant_name'],
+            'phone' => $validated['phone'],
+            'email' => $validated['email'],
             'brand_name' => $validated['brand_name'],
             'logo_path' => $logoPath,
             'description' => $validated['description'],
@@ -153,12 +157,25 @@ class TrademarkController extends Controller
             'applicant_name' => 'required|string|max:255',
             'brand_name' => 'required|string|max:255',
             'description' => 'required|string',
+            'nationality' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'gender' => 'required|in:male,female,other',
+            'classes' => 'required|array|min:1',
+            'classes.*' => 'required|string|max:45',
+            'goods_services' => 'required|string|min:10',
+            'usage' => 'required|in:used,proposed',
         ]);
 
         $application->update([
             'applicant_name' => $validated['applicant_name'],
             'brand_name' => $validated['brand_name'],
             'description' => $validated['description'],
+            'nationality' => $validated['nationality'],
+            'address' => $validated['address'],
+            'gender' => $validated['gender'],
+            'classes' => json_encode($validated['classes']),
+            'goods_services' => $validated['goods_services'],
+            'usage' => $validated['usage'],
             'status' => 'pending_documents',
         ]);
 
@@ -181,16 +198,14 @@ class TrademarkController extends Controller
             'individual' => [
                 'pan_card' => 'PAN Card',
                 'address_proof' => 'Address Proof',
-                'affidavit' => 'Affidavit',
-                'poa' => 'Power of Attorney',
+                
             ],
             'company' => [
                 'certificate_of_incorporation' => 'Certificate of Incorporation',
                 'pan_card' => 'PAN Card',
                 'gst_certificate' => 'GST Certificate',
                 'authorized_signatory_id' => 'Authorized Signatory ID',
-                'affidavit' => 'Affidavit',
-                'poa' => 'Power of Attorney',
+               
             ]
         ];
 

@@ -5,6 +5,10 @@
         font-weight: 700;
         color: white !important;
     }
+    .timeline-body h5{
+        color: #343a40 !important;
+    }
+
 </style>
 @section('content')
     <div class="container mt-5">
@@ -148,15 +152,101 @@
                             <p class="mb-0"><strong>{{ $application->applicant_name }}</strong></p>
                         </div>
                         <div class="mb-3">
+                            <small class="text-muted">CLASSES</small>
+                            @if($application->classes)
+                                @php
+                                    $classLabels = [
+                                                '1' => 'Class 1: Chemicals - Chemical products for use in industry, science and agriculture',
+                                                '2' => 'Class 2: Paints - Paints, varnishes and lacquers; preservatives against rust and deterioration',
+                                                '3' => 'Class 3: Cosmetics - Bleaching preparations and detergents for use in manufacturing',
+                                                '4' => 'Class 4: Industrial oils - Industrial oils and greases; fuels; dust absorbing agents',
+                                                '5' => 'Class 5: Pharmaceuticals - Pharmaceutical preparations and medical products',
+                                                '6' => 'Class 6: Metals - Metals and metal alloys; metal ores for smelting',
+                                                '7' => 'Class 7: Machinery - Machines, machine tools, motors and engines',
+                                                '8' => 'Class 8: Hand tools - Hand-operated tools and implements; cutlery',
+                                                '9' => 'Class 9: Electronics - Electrical and electronic apparatus and instruments',
+                                                '10' => 'Class 10: Medical devices - Surgical and medical apparatus and instruments',
+                                                '11' => 'Class 11: Lighting - Installation, apparatus for lighting, heating, steam generation',
+                                                '12' => 'Class 12: Vehicles - Vehicles; apparatus for locomotion by land, air or water',
+                                                '13' => 'Class 13: Explosives - Firearms; ammunition and projectiles; pyrotechnic articles',
+                                                '14' => 'Class 14: Jewelry - Precious metals and their alloys; jewelry; horological articles',
+                                                '15' => 'Class 15: Musical instruments - Musical instruments and parts and accessories',
+                                                '16' => 'Class 16: Paper products - Paper, cardboard and goods made of these materials',
+                                                '17' => 'Class 17: Rubber products - Rubber, gutta-percha, gum, asbestos, mica and articles',
+                                                '18' => 'Class 18: Leather goods - Leather and imitation leather; articles made of these',
+                                                '19' => 'Class 19: Building materials - Non-metallic mineral building materials and materials',
+                                                '20' => 'Class 20: Furniture - Furniture and goods not included in other classes',
+                                                '21' => 'Class 21: Household items - Household or kitchen utensils and containers',
+                                                '22' => 'Class 22: Textiles - Ropes, string, nets, tents, awnings, tarpaulins and sails',
+                                                '23' => 'Class 23: Yarns - Yarns and threads for textile use',
+                                                '24' => 'Class 24: Fabrics - Textiles and substitutes for textiles',
+                                                '25' => 'Class 25: Clothing - Clothing, footwear, headgear',
+                                                '26' => 'Class 26: Accessories - Lace, braid and embroidery; haberdashery',
+                                                '27' => 'Class 27: Floor coverings - Floor coverings',
+                                                '28' => 'Class 28: Sports equipment - Games, toys and playthings; sports equipment',
+                                                '29' => 'Class 29: Meat & dairy - Meat, fish, poultry and game; meat extracts',
+                                                '30' => 'Class 30: Foodstuffs - Coffee, tea, cocoa and coffee substitutes; cereals',
+                                                '31' => 'Class 31: Agricultural products - Animal feed; seeds for agriculture and gardening',
+                                                '32' => 'Class 32: Beverages - Beverages including alcohol',
+                                                '33' => 'Class 33: Spirits - Alcoholic beverages (except beers)',
+                                                '34' => 'Class 34: Tobacco - Tobacco and tobacco substitutes; smokers\' articles',
+                                                '35' => 'Class 35: Advertising - Advertising; business and retail services',
+                                                '36' => 'Class 36: Insurance - Insurance; financial and monetary affairs',
+                                                '37' => 'Class 37: Construction - Building construction; repair; installation services',
+                                                '38' => 'Class 38: Telecommunications - Telecommunications services',
+                                                '39' => 'Class 39: Transport - Transport; travel organization services',
+                                                '40' => 'Class 40: Materials processing - Treatment of materials by physical and chemical',
+                                                '41' => 'Class 41: Education - Education; entertainment; sports activities',
+                                                '42' => 'Class 42: Scientific services - Scientific and technology services; design services',
+                                                '43' => 'Class 43: Catering - Food and beverage services; temporary accommodation',
+                                                '44' => 'Class 44: Medical services - Medical services; veterinary services; hygienic care',
+                                                '45' => 'Class 45: Legal services - Legal services; security services; personal and social',
+                                            ];
+                                    // Decode classes if it's a string (JSON)
+                                    $classes = is_string($application->classes) ? json_decode($application->classes, true) : $application->classes;
+                                @endphp
+                              <div>
+    @if(is_array($classes) && count($classes) > 0)
+        @foreach($classes as $classNum)
+            <span 
+                class="badge bg-primary me-1 mb-1 class-badge-tooltip"
+                title="{{ $classLabels[$classNum] ?? ('Class ' . $classNum) }}"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+            >
+                Class {{ $classNum }}
+            </span>
+        @endforeach
+    @else
+        <p class="mb-0 text-muted">Not selected</p>
+    @endif
+</div>
+                            @else
+                                <p class="mb-0 text-muted">Not selected</p>
+                            @endif
+                        </div>
+                        <div class="mb-3">
                             <small class="text-muted">INDUSTRY</small>
                             <p class="mb-0"><strong>{{ $application->industry }}</strong></p>
                         </div>
                         @if ($application->application_number)
-                            <div>
+                            <div class="mb-3">
                                 <small class="text-muted">APPLICATION NO.</small>
                                 <p class="mb-0"><strong>{{ $application->application_number }}</strong></p>
                             </div>
                         @endif
+                        <!-- @if ($application->usage)
+                            <div class="mb-3">
+                                <small class="text-muted">TRADEMARK STATUS</small>
+                                <p class="mb-0"><strong>{{ ucfirst($application->usage) === 'Used' ? 'Already in Use' : 'Proposed to be Used' }}</strong></p>
+                            </div>
+                        @endif
+                        @if ($application->goods_services)
+                            <div>
+                                <small class="text-muted">GOODS & SERVICES</small>
+                                <p class="mb-0"><small>{{ $application->goods_services }}</small></p>
+                            </div>
+                        @endif -->
                     </div>
                 </div>
 
