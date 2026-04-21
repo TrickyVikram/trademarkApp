@@ -303,6 +303,10 @@
                                         <p class="mb-0">
                                             @if ($payment->status === 'completed')
                                                 <span class="badge bg-success">✅ Completed</span>
+                                            @elseif ($payment->status === 'approved')
+                                                <span class="badge bg-success">✅ Approved</span>
+                                            @elseif ($payment->status === 'rejected')
+                                                <span class="badge bg-danger">❌ Rejected</span>
                                             @else
                                                 <span class="badge bg-warning text-dark">⏳
                                                     {{ ucfirst($payment->status) }}</span>
@@ -310,7 +314,7 @@
                                         </p>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label" style="color: #1D3557; font-weight: 600;">Date</label>
                                         <p class="mb-0">{{ $payment->created_at->format('M d, Y H:i A') }}</p>
@@ -323,6 +327,76 @@
                                         </p>
                                     </div>
                                 </div>
+
+                                <!-- Payment Action Buttons -->
+                                @if ($payment->status === 'completed')
+                                    <div class="d-grid gap-2 mb-3">
+                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#approvePaymentModal{{ $payment->id }}">
+                                            ✅ Approve Payment
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#rejectPaymentModal{{ $payment->id }}">
+                                            ❌ Reject Payment
+                                        </button>
+                                    </div>
+
+                                    <!-- Approve Payment Modal -->
+                                    <div class="modal fade" id="approvePaymentModal{{ $payment->id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">✅ Approve Payment</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="{{ route('admin.approve-payment', $payment->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to approve this payment of <strong>₹{{ number_format($payment->amount, 2) }}</strong>?</p>
+                                                        <p class="text-muted mb-0"><small>The user will be notified via email and in-app notification.</small></p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-success">✅ Approve</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reject Payment Modal -->
+                                    <div class="modal fade" id="rejectPaymentModal{{ $payment->id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">❌ Reject Payment</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="{{ route('admin.reject-payment', $payment->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-body">
+                                                        <label class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+                                                        <textarea class="form-control" name="rejection_reason" rows="4" placeholder="Please provide a reason for rejecting this payment..." required></textarea>
+                                                        <small class="text-muted d-block mt-2">The user will be notified with this reason.</small>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger">❌ Reject</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif ($payment->status === 'rejected')
+                                    <div class="alert alert-danger mb-3">
+                                        <strong>❌ Rejected</strong><br>
+                                        <small><strong>Reason:</strong> {{ $payment->rejection_reason }}</small>
+                                    </div>
+                                @elseif ($payment->status === 'approved')
+                                    <div class="alert alert-success mb-3">
+                                        <strong>✅ Approved on {{ $payment->approved_at->format('M d, Y') }}</strong>
+                                    </div>
+                                @endif
                             @endforeach
                         </div>
                     </div>

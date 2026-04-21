@@ -5,10 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\Admin;
 use App\Models\Document;
+use App\Models\Payment;
 use App\Services\DocumentGenerator;
+use App\Services\NotificationService;
+use App\Mail\DocumentApprovedNotification;
+use App\Mail\DocumentRejectedNotification;
+use App\Mail\DocumentVerifiedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -226,12 +232,30 @@ class AdminController extends Controller
     public function approveDocument($documentId)
     {
         $document = Document::findOrFail($documentId);
+        $application = $document->application;
+        $user = $application->user;
 
         $document->update([
             'status' => 'approved'
         ]);
 
-        return redirect()->back()->with('success', '✅ ' . ucfirst(str_replace('_', ' ', $document->document_type)) . ' approved successfully!');
+        // Send email notification
+        Mail::to($user->email)->send(new DocumentApprovedNotification($user, $document, $application));
+
+        // Create in-app notification
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'document_approved',
+            'title' => '📋 Document Approved',
+            'message' => ucfirst(str_replace('_', ' ', $document->document_type)) . ' has been approved!',
+            'data' => [
+                'document_id' => $document->id,
+                'application_id' => $application->id,
+                'document_type' => $document->document_type,
+            ],
+        ]);
+
+        return redirect()->back()->with('success', '✅ ' . ucfirst(str_replace('_', ' ', $document->document_type)) . ' approved successfully! User notified via email.');
     }
 
     /**
@@ -240,6 +264,8 @@ class AdminController extends Controller
     public function rejectDocument($documentId)
     {
         $document = Document::findOrFail($documentId);
+        $application = $document->application;
+        $user = $application->user;
         
         // Delete file from storage
         if (Storage::disk('public')->exists($document->file_path)) {
@@ -251,7 +277,23 @@ class AdminController extends Controller
             'status' => 'pending'
         ]);
 
-        return redirect()->back()->with('success', '❌ ' . ucfirst(str_replace('_', ' ', $document->document_type)) . ' rejected. User will need to resubmit.');
+        // Send email notification
+        Mail::to($user->email)->send(new DocumentRejectedNotification($user, $document, $application));
+
+        // Create in-app notification
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'document_rejected',
+            'title' => '❌ Document Rejected',
+            'message' => ucfirst(str_replace('_', ' ', $document->document_type)) . ' has been rejected. Please resubmit.',
+            'data' => [
+                'document_id' => $document->id,
+                'application_id' => $application->id,
+                'document_type' => $document->document_type,
+            ],
+        ]);
+
+        return redirect()->back()->with('success', '❌ ' . ucfirst(str_replace('_', ' ', $document->document_type)) . ' rejected. User notified via email to resubmit.');
     }
 
     /**
@@ -260,12 +302,71 @@ class AdminController extends Controller
     public function verifyDocument($documentId)
     {
         $document = Document::findOrFail($documentId);
+        $application = $document->application;
+        $user = $application->user;
 
         $document->update([
             'status' => 'verified',
             'verified_at' => now()
         ]);
 
-        return redirect()->back()->with('success', '✔️ ' . ucfirst(str_replace('_', ' ', $document->document_type)) . ' verified successfully!');
+        // Send email notification
+        Mail::to($user->email)->send(new DocumentVerifiedNotification($user, $document, $application));
+
+        // Create in-app notification
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'type' => 'document_verified',
+            'title' => '✔️ Document Verified',
+            'message' => ucfirst(str_replace('_', ' ', $document->document_type)) . ' has been verified!',
+            'data' => [
+                'document_id' => $document->id,
+                'application_id' => $application->id,
+                'document_type' => $document->document_type,
+            ],
+        ]);
+
+        return redirect()->back()->with('success', '✔️ ' . ucfirst(str_replace('_', ' ', $document->document_type)) . ' verified successfully! User notified via email.');
+    }
+
+    /**
+     * Approve payment
+     */
+    public function approvePayment(Request $request, $paymentId)
+    {
+        $payment = \App\Models\Payment::findOrFail($paymentId);
+
+        $payment->update([
+            'status' => 'approved',
+            'approved_at' => now()
+        ]);
+
+        // Send notification to user
+        \App\Services\NotificationService::sendPaymentApprovedNotification($payment);
+
+        return redirect()->back()->with('success', '✅ Payment approved! User has been notified via email and in-app notification.');
+    }
+
+    /**
+     * Reject payment
+     */
+    public function rejectPayment(Request $request, $paymentId)
+    {
+        $payment = \App\Models\Payment::findOrFail($paymentId);
+
+        $validated = $request->validate([
+            'rejection_reason' => 'required|string|min:10',
+        ]);
+
+        $payment->update([
+            'status' => 'rejected',
+            'rejected_at' => now(),
+            'rejection_reason' => $validated['rejection_reason']
+        ]);
+
+        // Send notification to user
+        \App\Services\NotificationService::sendPaymentRejectedNotification($payment, $validated['rejection_reason']);
+
+        return redirect()->back()->with('success', '❌ Payment rejected! User has been notified with the reason.');
     }
 }

@@ -17,11 +17,16 @@ class Payment extends Model
         'payment_method',
         'status',
         'paid_at',
+        'approved_at',
+        'rejected_at',
+        'rejection_reason',
         'reference_number',
     ];
 
     protected $casts = [
         'paid_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
         'amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];

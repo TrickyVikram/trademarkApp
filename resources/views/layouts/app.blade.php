@@ -545,45 +545,13 @@
 <body>
     <div id="app">
         <!-- ============ NAVBAR ============ -->
-        <nav class="navbar navbar-expand-lg">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    <img src="{{ asset('logo.png') }}" alt="Legal Bruz " sizes="(max-width: 768px) 100vw, 50px"
-                        srcset="{{ asset('logo.png') }} 1x, {{ asset('logo.png') }} 2x">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        @auth
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('user.documents') }}">📋 My Documents</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Help</a>
-                            </li>
-                            <li class="nav-item ms-2">
-                                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-nav-logout">Logout</button>
-                                </form>
-                            </li>
-                        @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">Login</a>
-                            </li>
-                            <li class="nav-item ms-2">
-                                <a href="{{ route('register') }}" class="btn btn-nav-logout">Sign Up</a>
-                            </li>
-                        @endauth
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        @if (Auth::guard('admin')->check())
+            <!-- Admin Header -->
+            @include('components.admin-header')
+        @else
+            <!-- User Header -->
+            @include('components.user-header')
+        @endif
 
         <!-- ============ MAIN CONTENT ============ -->
         <main>

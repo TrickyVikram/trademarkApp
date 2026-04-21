@@ -112,6 +112,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/documents/{document}/download', [UserDocumentController::class, 'download'])->name('user.document.download');
     Route::post('/documents/upload-signed', [UserDocumentController::class, 'uploadSigned'])->name('user.document.upload-signed');
     Route::get('/documents/list', [UserDocumentController::class, 'listDocuments'])->name('user.documents.list');
+
+    // Notifications
+    Route::post('/api/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notification.mark-read');
 });
 
 // ADMIN ROUTES (Protected by admin middleware - to be created)
@@ -138,4 +141,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Filing
     Route::post('/application/{id}/file', [AdminController::class, 'fileApplication'])->name('admin.file');
     Route::post('/application/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.update-status');
+
+    // Payment Approval/Rejection
+    Route::post('/payment/{id}/approve', [AdminController::class, 'approvePayment'])->name('admin.approve-payment');
+    Route::post('/payment/{id}/reject', [AdminController::class, 'rejectPayment'])->name('admin.reject-payment');
 });
